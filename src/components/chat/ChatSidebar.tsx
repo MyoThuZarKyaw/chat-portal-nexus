@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatRoom } from '@/lib/api';
-import { MessageCircle, Plus, LogOut, Trash2, Hash } from 'lucide-react';
+import { MessageCircle, Plus, LogOut, Trash2, Hash, AlertCircle } from 'lucide-react';
+import { chatRoomSchema } from '@/lib/validation';
+import { z } from 'zod';
 import {
   Dialog,
   DialogContent,
@@ -38,6 +40,7 @@ const ChatSidebar = ({
   const navigate = useNavigate();
   const [newRoomName, setNewRoomName] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [roomNameError, setRoomNameError] = useState<string>('');
 
   const handleLogout = async () => {
     await logout();
@@ -45,10 +48,17 @@ const ChatSidebar = ({
   };
 
   const handleCreateRoom = () => {
-    if (newRoomName.trim()) {
+    setRoomNameError('');
+    
+    try {
+      chatRoomSchema.parse({ name: newRoomName });
       onCreateRoom(newRoomName.trim());
       setNewRoomName('');
       setIsDialogOpen(false);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setRoomNameError(error.errors[0].message);
+      }
     }
   };
 
@@ -85,10 +95,20 @@ const ChatSidebar = ({
                   id="room-name"
                   placeholder="Enter room name"
                   value={newRoomName}
-                  onChange={(e) => setNewRoomName(e.target.value)}
+                  onChange={(e) => {
+                    setNewRoomName(e.target.value);
+                    setRoomNameError('');
+                  }}
                   onKeyDown={(e) => e.key === 'Enter' && handleCreateRoom()}
-                  className="bg-input border-border"
+                  className={`bg-input border-border ${roomNameError ? 'border-destructive' : ''}`}
+                  maxLength={100}
                 />
+                {roomNameError && (
+                  <div className="flex items-center gap-1 text-sm text-destructive">
+                    <AlertCircle className="h-3 w-3" />
+                    <span>{roomNameError}</span>
+                  </div>
+                )}
               </div>
             </div>
             <DialogFooter>

@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatRoom, Message } from '@/lib/api';
 import { Send, Hash } from 'lucide-react';
 import { format } from 'date-fns';
+import { messageSchema } from '@/lib/validation';
 
 interface ChatWindowProps {
   selectedRoom: ChatRoom | null;
@@ -31,9 +32,14 @@ const ChatWindow = ({
   }, [messages]);
 
   const handleSendMessage = () => {
-    if (messageInput.trim() && selectedRoom) {
+    if (!selectedRoom) return;
+    
+    try {
+      messageSchema.parse({ content: messageInput });
       onSendMessage(messageInput.trim());
       setMessageInput('');
+    } catch (error) {
+      console.error('Invalid message:', error);
     }
   };
 
@@ -129,6 +135,7 @@ const ChatWindow = ({
             onKeyPress={handleKeyPress}
             placeholder={`Message ${selectedRoom.name}`}
             className="flex-1 bg-input border-border focus-visible:ring-primary"
+            maxLength={2000}
           />
           <Button
             onClick={handleSendMessage}
