@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://message-app-backend-t3-2025-v2-eosin.vercel.app/api';
+const API_BASE_URL = 'http://54.179.201.195:8000/api/'; //https://message-app-backend-t3-2025-v2-eosin.vercel.app/api';
 
 export interface ChatRoom {
   id: number;
