@@ -27,7 +27,7 @@ jobs:
       - run: npm i
       - run: npm run build
 
-deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -76,4 +76,5 @@ deploy:
             # Show status
             sudo docker compose ps
           EOSSH
+
 
